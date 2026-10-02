@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Issuer login{% endblock %}
+{% block content %}
+<div class="card" style="max-width:420px;margin:2rem auto">
+  <h1>Issuer login</h1>
+  <p class="muted small">Only the issuing office needs an account. Verifiers do not.</p>
+  {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+  <form method="post" action="/admin/login">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" required autocomplete="username">
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required autocomplete="current-password">
+    <button class="btn" type="submit">Log in</button>
+  </form>
+</div>
+{% endblock %}

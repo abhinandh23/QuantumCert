@@ -1,0 +1,23 @@
+# Pinned versions verified on Ubuntu 24.04 / Python 3.12 (2026-10-02)
+pqcrypto==1.0.0
+rfc8785==0.1.4
+cryptography==50.0.2
+argon2-cffi==25.1.0
+fastapi==0.142.2
+uvicorn[standard]==0.54.0
+Jinja2==3.1.6
+python-multipart==0.0.32
+itsdangerous==2.2.0
+SQLAlchemy==2.1.2
+pydantic==2.13.5
+reportlab==5.0.1
+pypdf==6.19.0
+pdfplumber==0.11.10
+pypdfium2==5.13.0
+opencv-python-headless==5.0.0.93
+zxing-cpp==3.1.1
+numpy==2.5.3
+qrcode[pil]==8.2
+pillow==12.3.0
+pytest==9.1.1
+httpx==0.28.1

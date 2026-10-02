@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Verification history{% endblock %}
+{% block content %}
+<h1>Verification history</h1>
+<p class="lead">Every verification attempt — PDF upload, QR scan or ID lookup — is recorded here.</p>
+<form class="filters" method="get" action="/admin/history">
+  <div><label for="verdict">Verdict</label>
+    <select id="verdict" name="verdict">
+      <option value="">All</option>
+      {% for v in ["VALID", "INVALID", "REVOKED", "EXPIRED", "UNKNOWN"] %}<option value="{{ v }}" {{ "selected" if v == verdict }}>{{ v }}</option>{% endfor %}
+    </select></div>
+  <button class="btn secondary" type="submit">Filter</button>
+</form>
+<div class="card table-wrap">
+  <table>
+    <thead><tr><th>When (UTC)</th><th>Certificate</th><th>Method</th><th>Verdict</th><th>Failed checks</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td>{{ r.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+        <td class="mono">{% if r.cert_id %}<a href="/admin/certificates/{{ r.cert_id }}">{{ r.cert_id }}</a>{% else %}—{% endif %}</td>
+        <td>{{ r.method }}</td>
+        <td><span class="badge b-{{ r.verdict }}">{{ r.verdict }}</span></td>
+        <td class="small">{% for c in r.failed %}<div><b>{{ c.key }}</b>: <span class="muted">{{ c.reason }}</span></div>{% endfor %}</td>
+      </tr>
+    {% else %}<tr><td colspan="5" class="muted">No verification attempts yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if pages > 1 %}
+<div class="pager">
+  {% if page > 1 %}<a class="btn secondary" href="?verdict={{ verdict }}&page={{ page - 1 }}">← Prev</a>{% endif %}
+  <span class="muted">Page {{ page }} of {{ pages }}</span>
+  {% if page < pages %}<a class="btn secondary" href="?verdict={{ verdict }}&page={{ page + 1 }}">Next →</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ cert.cert_id }}{% endblock %}
+{% block content %}
+{% set expired = cert.expiry_date and cert.expiry_date < today %}
+{% if issued %}<div class="alert ok"><b>Certificate issued and signed.</b> Preview it below and download the PDF to send to the recipient.</div>{% endif %}
+<div class="toolbar" style="justify-content:space-between;margin-bottom:1rem">
+  <div>
+    <h1 style="margin:0" class="mono">{{ cert.cert_id }}</h1>
+    {% if cert.status == "REVOKED" %}<span class="badge b-REVOKED">REVOKED</span>{% elif expired %}<span class="badge b-EXPIRED">EXPIRED</span>{% else %}<span class="badge b-ACTIVE">ACTIVE</span>{% endif %}
+  </div>
+  <div class="toolbar">
+    <a class="btn" href="/admin/certificates/{{ cert.cert_id }}/pdf">Download PDF</a>
+    <a class="btn secondary" href="/verify/{{ cert.cert_id }}?d={{ digest_b64 }}">Open public check</a>
+  </div>
+</div>
+<div class="grid">
+  <div class="card">
+    <h2>Preview</h2>
+    <img class="preview" src="/admin/certificates/{{ cert.cert_id }}/preview.png" alt="Certificate preview">
+  </div>
+  <div class="card">
+    <h2>Signed data</h2>
+    <div class="table-wrap"><table class="kv">
+      <tr><th>Name</th><td>{{ payload.recipient_name }}</td></tr>
+      <tr><th>Register No.</th><td>{{ payload.recipient_id }}</td></tr>
+      <tr><th>Programme</th><td>{{ payload.program }}</td></tr>
+      <tr><th>Institution</th><td>{{ payload.institution }}</td></tr>
+      <tr><th>CGPA</th><td>{{ payload.grade or "Not applicable" }}</td></tr>
+      <tr><th>Issued</th><td>{{ payload.issue_date }}</td></tr>
+      <tr><th>Valid until</th><td>{{ payload.expiry_date or "No expiry" }}</td></tr>
+      <tr><th>Issuer key</th><td class="mono">{{ cert.key_id }}</td></tr>
+      <tr><th>Recorded</th><td>{{ cert.created_at.strftime("%Y-%m-%d %H:%M") }} UTC</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:1rem">
+  <h2>Cryptographic details</h2>
+  <p class="small muted" style="margin:.2rem 0">Canonical payload — the exact bytes signed (RFC 8785 JSON, UTF-8, {{ cert.payload_canonical|length }} bytes):</p>
+  <p class="mono">{{ canonical }}</p>
+  <p class="small muted" style="margin:.8rem 0 .2rem">SHA-256 digest (hex):</p>
+  <p class="mono">{{ cert.digest.hex() }}</p>
+  <p class="small muted" style="margin:.8rem 0 .2rem">{{ cert.alg }} signature, context <span class="mono">QuantumCert-v1</span> ({{ cert.signature|length }} bytes), first 64 bytes:</p>
+  <p class="mono">{{ cert.signature[:64].hex() }}…</p>
+  <p class="small muted" style="margin:.8rem 0 .2rem">QR code content:</p>
+  <p class="mono">{{ verify_url }}</p>
+</div>
+
+<div class="card">
+  <h2>Revocation</h2>
+  {% if cert.revocation %}
+    <p>Revoked on {{ cert.revocation.revoked_at.strftime("%Y-%m-%d %H:%M") }} UTC. Reason: <b>{{ cert.revocation.reason }}</b></p>
+    <p class="muted small">Verifiers will see verdict REVOKED, and still see that the signature itself is valid.</p>
+  {% else %}
+    <form method="post" action="/admin/certificates/{{ cert.cert_id }}/revoke">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+      <label for="reason">Reason for revocation</label>
+      <input type="text" id="reason" name="reason" required maxlength="500" placeholder="e.g. issued in error, academic misconduct">
+      <button class="btn danger" type="submit">Revoke certificate</button>
+    </form>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Verification history <small>· last 25</small></h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>When (UTC)</th><th>Method</th><th>Verdict</th><th>Client</th></tr></thead>
+    <tbody>
+    {% for h in history %}
+      <tr><td>{{ h.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</td><td>{{ h.method }}</td><td><span class="badge b-{{ h.verdict }}">{{ h.verdict }}</span></td><td class="muted small">{{ h.client_ip or "" }}</td></tr>
+    {% else %}<tr><td colspan="4" class="muted">Not verified yet.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% endblock %}

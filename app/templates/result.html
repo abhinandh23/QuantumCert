@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ res.verdict }} · Verification result{% endblock %}
+{% block content %}
+{% set labels = {"institution": "Institution", "recipient_name": "Name", "recipient_id": "Register No.", "program": "Programme", "grade": "CGPA", "issue_date": "Date of issue", "expiry_date": "Valid until", "cert_id": "Certificate ID", "issuer_key_id": "Issuer key ID", "alg": "Signature algorithm", "schema_version": "Schema version"} %}
+<p class="muted small" style="margin:0 0 .4rem">
+  {% if res.method == "PDF" %}Full PDF check{% if filename %} of <b>{{ filename }}</b>{% endif %}
+  {% elif res.method == "QR" %}QR code check (record-level)
+  {% else %}Certificate ID check (record-level){% endif %}
+  {% if res.cert_id %} · <span class="mono">{{ res.cert_id }}</span>{% endif %}
+</p>
+<div class="verdict v-{{ res.verdict }}">
+  <div class="word">{{ res.verdict }}</div>
+  <div><p><b>{{ res.verdict_text }}</b></p></div>
+</div>
+
+<div class="facts">
+  <span class="fact">Signature:
+    {% if res.signature_valid %}<b class="ok">VALID</b> (SLH-DSA, trusted key {{ res.key_id }})
+    {% elif res.signature_valid is sameas false %}<b class="bad">INVALID</b>
+    {% else %}<b class="na">not checked</b>{% endif %}</span>
+  <span class="fact">Status:
+    {% if res.cert_status == "REVOKED" %}<b class="warn">REVOKED</b>
+    {% elif res.cert_status == "ACTIVE" %}<b class="ok">ACTIVE</b>
+    {% else %}<b class="na">unknown</b>{% endif %}</span>
+  {% set exp = res.checks | selectattr("key", "equalto", "expiry") | first %}
+  <span class="fact">Expiry:
+    {% if exp.status == "PASS" %}<b class="ok">in date</b>{% elif exp.status == "FAIL" %}<b class="warn">EXPIRED</b>{% else %}<b class="na">not checked</b>{% endif %}</span>
+</div>
+
+{% for w in res.warnings %}<div class="alert warn">{{ w }}</div>{% endfor %}
+{% if res.revocation %}<div class="alert warn"><b>Revoked</b> on {{ res.revocation.revoked_at }} — reason: {{ res.revocation.reason }}</div>{% endif %}
+
+{% set qrc = res.checks | selectattr("key", "equalto", "qr_digest") | first %}
+{% if qrc and qrc.status == "FAIL" %}
+<div class="alert error">
+  <b>The QR code does not match this certificate's record.</b> The document carrying this QR code was probably altered,
+  or the QR code was copied from another certificate. Do not trust it. The issuer's genuine record for this ID is shown below.
+</div>
+{% elif res.method in ("QR", "ID") and res.record_found %}
+<div class="alert info">
+  <b>This confirms the issuer's record is genuine</b> — it does not check the document in your hand.
+  Compare the signed data below with the paper or PDF you were given, or
+  <a href="/verify#pdf">upload the PDF</a> for a full check.
+</div>
+{% endif %}
+
+<div class="grid">
+  {% if res.payload %}
+  <div class="card">
+    <h2>Signed certificate data</h2>
+    <div class="table-wrap"><table class="kv">
+      {% for k in ["recipient_name", "recipient_id", "program", "institution", "grade", "issue_date", "expiry_date", "cert_id", "issuer_key_id", "alg"] %}
+      <tr><th>{{ labels[k] }}</th><td>{{ res.payload[k] if res.payload[k] is not none else ("No expiry" if k == "expiry_date" else "Not applicable") }}</td></tr>
+      {% endfor %}
+    </table></div>
+    <p class="muted small" style="margin-bottom:0">This data is covered by the SLH-DSA signature; it cannot be altered without detection.</p>
+  </div>
+  {% endif %}
+  <div class="card">
+    <h2>Checks</h2>
+    <ul class="checks">
+      {% for c in res.checks %}
+      <li>
+        <span><span class="badge b-{{ c.status }}">{{ "N/A" if c.status == "NOT_APPLICABLE" else c.status }}</span></span>
+        <span class="title">{{ c.title }}</span>
+        <span class="reason">{{ c.reason }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+<p><a class="btn secondary" href="/verify">Verify another</a></p>
+{% endblock %}

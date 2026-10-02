@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<h1>Post-quantum signed certificates</h1>
+<p class="lead">QuantumCert issues degree certificates as PDFs signed with <b>SLH-DSA</b> (NIST FIPS 205), a hash-based
+signature scheme that stays secure even against attackers with large quantum computers. Anyone can check a certificate here, without an account.</p>
+<div class="grid">
+  <div class="card">
+    <h2>Upload the PDF <small>· strongest check</small></h2>
+    <p class="muted">Checks the embedded signed data, the printed text, the QR digest, the SLH-DSA signature against the issuer's trusted key, and revocation/expiry.</p>
+    <a class="btn" href="/verify#pdf">Upload a PDF</a>
+  </div>
+  <div class="card">
+    <h2>Scan the QR code</h2>
+    <p class="muted">Hold a printed or on-screen certificate up to this laptop's webcam. Confirms the issuer's record is genuine and shows the signed data to compare.</p>
+    <a class="btn secondary" href="/verify#scan">Open the scanner</a>
+  </div>
+  <div class="card">
+    <h2>Enter the certificate ID</h2>
+    <p class="muted">Type the ID printed on the certificate (e.g. <span class="mono">QC-7K2M9Q4XHT3B</span>) to look up and re-verify the signed record.</p>
+    <a class="btn secondary" href="/verify#id">Enter an ID</a>
+  </div>
+</div>
+<div class="card" style="margin-top:1rem">
+  <h2>Why trust this?</h2>
+  <p class="muted" style="margin:0">Trust rests on the issuer's <b>public key</b>, not on this website: each PDF carries its signed data
+  (<span class="mono">quantumcert.json</span>) and can be verified offline with the published key
+  (<a href="/api/keys">/api/keys</a>). A forger without the issuer's private key cannot produce a valid signature, and any public key
+  shipped inside a document is ignored.</p>
+</div>
+{% endblock %}

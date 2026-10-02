@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}QuantumCert{% endblock %} · QuantumCert</title>
+<link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/">Quantum<span>Cert</span></a>
+  <nav>
+    <a href="/verify">Verify a certificate</a>
+    {% if request.session.get('admin_id') %}
+      <a href="/admin">Dashboard</a>
+      <a href="/admin/certificates/new">Issue</a>
+      <a href="/admin/history">History</a>
+      <form method="post" action="/admin/logout">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+        <button type="submit">Log out {{ request.session.get('admin_name') }}</button>
+      </form>
+    {% else %}
+      <a href="/admin/login">Issuer login</a>
+    {% endif %}
+  </nav>
+</div></header>
+<main class="wrap">
+{% block content %}{% endblock %}
+</main>
+<footer><div class="wrap">QuantumCert — academic prototype (Cryptography &amp; Network Security mini project). Certificates are signed with SLH-DSA-SHA2-128s, NIST FIPS 205.</div></footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Verify{% endblock %}
+{% block content %}
+<h1>Verify a certificate</h1>
+<p class="lead">No account needed. Every verification attempt is logged by the issuer.</p>
+{% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+
+<div class="card" id="pdf">
+  <h2>1 · Upload the certificate PDF <small>· full check</small></h2>
+  <form method="post" action="/verify/pdf" enctype="multipart/form-data">
+    <input type="file" name="file" accept="application/pdf,.pdf" required>
+    <p class="muted small">PDF only, up to 5 MB.</p>
+    <button class="btn" type="submit">Verify PDF</button>
+  </form>
+</div>
+
+<div class="card" id="scan">
+  <h2>2 · Scan the QR code with the webcam</h2>
+  <p class="muted small">Hold the certificate's QR code (printed, or on a phone screen) up to this laptop's camera and fit it inside the square.
+  The browser will ask permission to use the camera. Video is only used to read the QR code — nothing is recorded.</p>
+  <div class="toolbar">
+    <button class="btn" type="button" id="scan-start">Start webcam scanner</button>
+    <button class="btn secondary" type="button" id="scan-stop" hidden>Stop</button>
+    <select id="scan-camera" hidden aria-label="Camera"></select>
+  </div>
+  <div class="scan-stage" id="scan-stage" hidden>
+    <video id="scan-video" playsinline muted autoplay></video>
+    <div class="viewfinder" id="viewfinder" aria-hidden="true">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
+      <span class="scanline"></span>
+    </div>
+    <div class="scan-label" id="scan-label">Fit the QR code inside the square</div>
+  </div>
+  <p class="scan-status" id="scan-status" role="status" aria-live="polite"></p>
+  <ul class="scan-tips small muted" id="scan-tips" hidden>
+    <li>Bring the QR code closer so it fills most of the square, then hold it steady for a second.</li>
+    <li>On a phone, turn the brightness up and tilt it slightly to avoid reflections.</li>
+    <li>Make sure the whole QR code, including its white border, is visible.</li>
+  </ul>
+  <details style="margin-top:1rem">
+    <summary class="small">No webcam? Upload a photo or screenshot of the QR code</summary>
+    <form method="post" action="/verify/qr-image" enctype="multipart/form-data">
+      <input type="file" name="file" accept="image/*" required style="margin-top:.6rem">
+      <button class="btn secondary" type="submit">Read QR from image</button>
+    </form>
+  </details>
+</div>
+
+<div class="card" id="id">
+  <h2>3 · Enter the certificate ID</h2>
+  <form method="post" action="/verify/id">
+    <label for="cert_id">Certificate ID</label>
+    <input type="text" id="cert_id" name="cert_id" placeholder="QC-XXXXXXXXXXXX" required autocomplete="off" spellcheck="false">
+    <button class="btn" type="submit">Look up</button>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/scanner.js"></script>
+{% endblock %}

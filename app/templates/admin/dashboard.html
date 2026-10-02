@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="toolbar" style="justify-content:space-between;margin-bottom:1rem">
+  <h1 style="margin:0">Certificates</h1>
+  <a class="btn" href="/admin/certificates/new">+ New certificate</a>
+</div>
+{% if not signer.ready %}<div class="alert error">Issuing is disabled: {{ signer.error }}</div>{% endif %}
+<div class="stats">
+  <div class="stat"><b>{{ stats.total }}</b><span class="muted small">issued</span></div>
+  <div class="stat"><b>{{ stats.revoked }}</b><span class="muted small">revoked</span></div>
+  <div class="stat"><b>{{ stats.verifications }}</b><span class="muted small">verification attempts</span></div>
+  <div class="stat"><b class="mono" style="font-size:1rem;padding-top:.45rem">{{ signer.key_id or "—" }}</b><span class="muted small">active signing key</span></div>
+</div>
+<form class="filters" method="get" action="/admin">
+  <div><label for="q">Search</label><input type="search" id="q" name="q" value="{{ q }}" placeholder="name, register no., ID, programme"></div>
+  <div><label for="status">Status</label>
+    <select id="status" name="status">
+      {% for s in ["all", "active", "revoked", "expired"] %}<option value="{{ s }}" {{ "selected" if s == status }}>{{ s|capitalize }}</option>{% endfor %}
+    </select></div>
+  <button class="btn secondary" type="submit">Filter</button>
+</form>
+<div class="card table-wrap">
+  <table>
+    <thead><tr><th>Certificate ID</th><th>Recipient</th><th>Programme</th><th>Issued</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for c in certs %}
+      {% set expired = c.expiry_date and c.expiry_date < today %}
+      <tr>
+        <td class="mono"><a href="/admin/certificates/{{ c.cert_id }}">{{ c.cert_id }}</a></td>
+        <td>{{ c.recipient_name }}<br><span class="muted small">{{ c.recipient_id }}</span></td>
+        <td>{{ c.program }}</td>
+        <td>{{ c.issue_date }}</td>
+        <td>{% if c.status == "REVOKED" %}<span class="badge b-REVOKED">REVOKED</span>{% elif expired %}<span class="badge b-EXPIRED">EXPIRED</span>{% else %}<span class="badge b-ACTIVE">ACTIVE</span>{% endif %}</td>
+        <td><a href="/admin/certificates/{{ c.cert_id }}/pdf">PDF</a></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="muted">No certificates{% if q or status != "all" %} match this filter{% endif %}.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if pages > 1 %}
+<div class="pager">
+  {% if page > 1 %}<a class="btn secondary" href="?q={{ q|urlencode }}&status={{ status }}&page={{ page - 1 }}">← Prev</a>{% endif %}
+  <span class="muted">Page {{ page }} of {{ pages }} ({{ total }})</span>
+  {% if page < pages %}<a class="btn secondary" href="?q={{ q|urlencode }}&status={{ status }}&page={{ page + 1 }}">Next →</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

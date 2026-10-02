@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}New certificate{% endblock %}
+{% block content %}
+<h1>Issue a certificate</h1>
+<p class="lead">The server normalises these fields (Unicode NFC, trimmed), builds the canonical JSON payload, signs it with
+SLH-DSA-SHA2-128s and stores the record. You can then preview and download the PDF.</p>
+{% if not signer.ready %}<div class="alert error">Issuing is disabled: {{ signer.error }}</div>{% endif %}
+{% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+<form class="card" method="post" action="/admin/certificates/new">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+  <div class="row">
+    <div><label for="recipient_name">Recipient name</label>
+      <input type="text" id="recipient_name" name="recipient_name" value="{{ values.recipient_name or '' }}" maxlength="150" required></div>
+    <div><label for="recipient_id">Register / roll number</label>
+      <input type="text" id="recipient_id" name="recipient_id" value="{{ values.recipient_id or '' }}" maxlength="64" pattern="[A-Za-z0-9/_\-]{1,64}" required></div>
+  </div>
+  <label for="program">Programme / degree</label>
+  <input type="text" id="program" name="program" value="{{ values.program or '' }}" maxlength="150" required placeholder="B.Tech Computer Science and Engineering">
+  <label for="institution">Institution</label>
+  <input type="text" id="institution" name="institution" value="{{ values.institution or '' }}" maxlength="150" required>
+  <div class="row">
+    <div><label for="grade">CGPA <span class="muted small">(optional)</span></label>
+      <input type="text" id="grade" name="grade" value="{{ values.grade or '' }}" inputmode="decimal" placeholder="8.20"></div>
+    <div><label for="issue_date">Date of issue</label>
+      <input type="date" id="issue_date" name="issue_date" value="{{ values.issue_date or '' }}" required></div>
+    <div><label for="expiry_date">Valid until <span class="muted small">(optional)</span></label>
+      <input type="date" id="expiry_date" name="expiry_date" value="{{ values.expiry_date or '' }}"></div>
+  </div>
+  <button class="btn" type="submit" {{ "disabled" if not signer.ready }}>Sign &amp; issue</button>
+</form>
+{% endblock %}

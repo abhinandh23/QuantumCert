@@ -1,0 +1,21 @@
+# secrets — NEVER commit
+keys/private/
+*.sk.json
+.env
+
+# local state
+*.db
+*.db-journal
+demo/samples/
+spike/out/
+spike/node_modules/
+spike/package-lock.json
+
+# team-only docs
+quantumcert-explained.html
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
