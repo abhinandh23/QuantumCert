@@ -90,6 +90,12 @@ ul.checks .reason { color: var(--muted); font-size: .9rem; grid-column: 2; }
 details summary { cursor: pointer; font-weight: 600; }
 footer { color: var(--muted); font-size: .8rem; padding-block: 1.5rem; border-top: 1px solid var(--line); }
 
+/* verify page: one method at a time */
+.tabs { display: flex; gap: .5rem; flex-wrap: wrap; margin: 0 0 1rem; }
+.tabs a { padding: .45rem 1rem; border: 1px solid #c9ced8; border-radius: 999px; background: #fff;
+  font-weight: 600; font-size: .9rem; text-decoration: none; }
+.tabs a[aria-current] { background: var(--ink); border-color: var(--ink); color: #fff; }
+
 /* webcam scanner + viewfinder */
 .scan-stage { position: relative; width: 100%; max-width: 680px; aspect-ratio: 16 / 9; margin-top: .9rem;
   background: #0d1420; border-radius: 12px; overflow: hidden; }

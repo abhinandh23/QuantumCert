@@ -5,8 +5,14 @@
 <p class="lead">No account needed. Every verification attempt is logged by the issuer.</p>
 {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
 
-<div class="card" id="pdf">
-  <h2>1 · Upload the certificate PDF <small>· full check</small></h2>
+<div class="tabs" aria-label="Verification method">
+  <a href="#pdf" data-tab="pdf">Upload PDF</a>
+  <a href="#scan" data-tab="scan">Scan QR code</a>
+  <a href="#id" data-tab="id">Certificate ID</a>
+</div>
+
+<div class="card" data-panel="pdf">
+  <h2>Upload the certificate PDF <small>· full check</small></h2>
   <form method="post" action="/verify/pdf" enctype="multipart/form-data">
     <input type="file" name="file" accept="application/pdf,.pdf" required>
     <p class="muted small">PDF only, up to 5 MB.</p>
@@ -14,8 +20,8 @@
   </form>
 </div>
 
-<div class="card" id="scan">
-  <h2>2 · Scan the QR code with the webcam</h2>
+<div class="card" data-panel="scan">
+  <h2>Scan the QR code with the webcam</h2>
   <p class="muted small">Hold the certificate's QR code (printed, or on a phone screen) up to this laptop's camera and fit it inside the square.
   The browser will ask permission to use the camera. Video is only used to read the QR code — nothing is recorded.</p>
   <div class="toolbar">
@@ -47,8 +53,8 @@
   </details>
 </div>
 
-<div class="card" id="id">
-  <h2>3 · Enter the certificate ID</h2>
+<div class="card" data-panel="id">
+  <h2>Enter the certificate ID</h2>
   <form method="post" action="/verify/id">
     <label for="cert_id">Certificate ID</label>
     <input type="text" id="cert_id" name="cert_id" placeholder="QC-XXXXXXXXXXXX" required autocomplete="off" spellcheck="false">
@@ -57,5 +63,6 @@
 </div>
 {% endblock %}
 {% block scripts %}
+<script src="/static/js/verify-tabs.js"></script>
 <script src="/static/js/scanner.js"></script>
 {% endblock %}

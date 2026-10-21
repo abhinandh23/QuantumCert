@@ -4,8 +4,15 @@
     "a5af0eb9495a6c79": {
       "alg": "SLH-DSA-SHA2-128s",
       "public_key": "pkDhVAKA6ZyduaBvX0SCfuSdmlpYI+YX7/J8iWz5ceQ=",
-      "status": "ACTIVE",
+      "status": "RETIRED",
       "created_at": "2026-10-02T07:46:48Z",
+      "retired_at": "2026-10-21T05:43:37Z"
+    },
+    "6b3b42b709117daa": {
+      "alg": "SLH-DSA-SHA2-128s",
+      "public_key": "Ly5Dz+67IlkfhTTyGmH8icI8JRt32bwnQAWFBbh3AxU=",
+      "status": "ACTIVE",
+      "created_at": "2026-10-21T05:43:37Z",
       "retired_at": null
     }
   }
