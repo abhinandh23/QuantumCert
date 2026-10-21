@@ -60,7 +60,7 @@ async def verify_qr_image(request: Request, file: UploadFile = File(...)):
         img.load()
         texts = qr.decode_qr_image(img.convert("RGB"))
     except (UnidentifiedImageError, Image.DecompressionBombError, OSError, ValueError):
-        return RedirectResponse("/verify?error=" + quote("That file is not a readable image."), status_code=303)
+        return RedirectResponse("/verify?error=" + quote("That file is not a readable image.") + "#scan", status_code=303)
     for t in texts:
         try:
             link = qr.parse_verify_url(t)
@@ -69,7 +69,7 @@ async def verify_qr_image(request: Request, file: UploadFile = File(...)):
         d = f"?d={qr.b64url(link.digest)}" if link.digest else ""
         return RedirectResponse(f"/verify/{link.cert_id}{d}", status_code=303)
     msg = "No QuantumCert QR code found in that image." if not texts else "That QR code is not a QuantumCert link."
-    return RedirectResponse("/verify?error=" + quote(msg), status_code=303)
+    return RedirectResponse("/verify?error=" + quote(msg) + "#scan", status_code=303)
 
 
 MAX_FRAME_BYTES = 3 * 1024 * 1024
